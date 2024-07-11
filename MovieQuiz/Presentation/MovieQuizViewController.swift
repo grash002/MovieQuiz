@@ -2,37 +2,16 @@ import UIKit
 
 
 final class MovieQuizViewController: UIViewController {
-    // MARK: - Lifecycle
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        ButtonNo.layer.cornerRadius = 15
-        ButtonYes.layer.cornerRadius = 15
-        
-        imageView.layer.masksToBounds = true
-        imageView.layer.borderWidth = 8
-        imageView.layer.cornerRadius = 20
-        imageView.layer.borderColor = UIColor.yBlack.cgColor
-        
-        currentQuestion = questions[currentQuestionIndex]
-        show(quiz: convert(model: currentQuestion))
-    }
     
-    // MARK: - Structs
+    // MARK: - @IBOutlet
     
-    private struct QuizQuestion {
-        let image: String
-        let text: String
-        let correctAnswer: Bool
-    }
-
-    private struct QuizStepViewModel {
-        let image: UIImage
-        let question: String
-        let questionNumber: String
-    }
+    @IBOutlet private weak var imageView: UIImageView!
+    @IBOutlet private weak var textLabel: UILabel!
+    @IBOutlet private weak var counterLabel: UILabel!
+    @IBOutlet private weak var buttonNo: UIButton!
+    @IBOutlet private weak var buttonYes: UIButton!
     
-    // MARK: - Properties
+    // MARK: - Private Properties
     
     private var currentQuestionIndex = 0
     
@@ -61,7 +40,17 @@ final class MovieQuizViewController: UIViewController {
         return quizStepViewModel
     }
     
-    // MARK: - Functions
+    // MARK: - IB Actions
+    
+    @IBAction private func yesButtonClicked(_ sender: Any) {
+        showAnswerResult(isCorrect: currentQuestion.correctAnswer)
+    }
+    
+    @IBAction private func noButtonClicked(_ sender: Any) {
+        showAnswerResult(isCorrect: !currentQuestion.correctAnswer)
+    }
+    
+    // MARK: - Private Methods
     
     private func show(quiz step: QuizStepViewModel) {
         imageView.image =  step.image
@@ -69,8 +58,10 @@ final class MovieQuizViewController: UIViewController {
         counterLabel.text = step.questionNumber
     }
     
-    private func showAnswerResult(clickedButton: inout UIButton, isCorrect: Bool) {
-        clickedButton.isEnabled = false
+    private func showAnswerResult(isCorrect: Bool) {
+        
+        buttonNo.isEnabled = false
+        buttonYes.isEnabled = false
         
         imageView.layer.borderColor = isCorrect ? UIColor.yGreen.cgColor : UIColor.yRed.cgColor
         
@@ -90,12 +81,15 @@ final class MovieQuizViewController: UIViewController {
                 message: "Ваш результат \(correctAnswers)/\(questions.count)",
                 preferredStyle: .alert)
             
-            let action = UIAlertAction(title: "Сыграть снова!", style: .default) { _ in
-                self.currentQuestionIndex = 0
-                self.correctAnswers = 0
-                self.imageView.layer.borderColor = UIColor.yBlack.cgColor
-                self.currentQuestion = self.questions[self.currentQuestionIndex]
-                self.show(quiz: self.convert(model: self.currentQuestion))
+            let nilQuestion = QuizQuestion(image: "", text: "", correctAnswer: true)
+            let nilQuizStepViewModel = convert(model: nilQuestion)
+            
+            let action = UIAlertAction(title: "Сыграть снова!", style: .default) { [weak self] _ in
+                self?.currentQuestionIndex = 0
+                self?.correctAnswers = 0
+                self?.imageView.layer.borderColor = UIColor.yBlack.cgColor
+                self?.currentQuestion = self?.questions[self?.currentQuestionIndex ?? 0] ?? nilQuestion
+                self?.show(quiz: self?.convert(model: self?.currentQuestion ?? nilQuestion) ?? nilQuizStepViewModel)
             }
             
             alert.addAction(action)
@@ -107,26 +101,25 @@ final class MovieQuizViewController: UIViewController {
             currentQuestion = questions[currentQuestionIndex]
             imageView.layer.borderColor = UIColor.yBlack.cgColor
             show(quiz: convert(model: currentQuestion))
-            ButtonNo.isEnabled = true
-            ButtonYes.isEnabled = true
         }
+        
+        buttonNo.isEnabled = true
+        buttonYes.isEnabled = true
     }
-    
-    // MARK: - @IBAction
-    
-    @IBAction func yesButtonClicked(_ sender: Any) {
-        showAnswerResult(clickedButton: &ButtonYes,isCorrect: currentQuestion.correctAnswer)
+
+    // MARK: - Lifecycle
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        buttonNo.layer.cornerRadius = 15
+        buttonYes.layer.cornerRadius = 15
+        
+        imageView.layer.masksToBounds = true
+        imageView.layer.borderWidth = 8
+        imageView.layer.cornerRadius = 20
+        imageView.layer.borderColor = UIColor.yBlack.cgColor
+        
+        currentQuestion = questions[currentQuestionIndex]
+        show(quiz: convert(model: currentQuestion))
     }
-    
-    @IBAction func noButtonClicked(_ sender: Any) {
-        showAnswerResult(clickedButton: &ButtonNo, isCorrect: !currentQuestion.correctAnswer)
-    }
-    
-    // MARK: - @IBOutlet
-    
-    @IBOutlet weak var imageView: UIImageView!
-    @IBOutlet weak var textLabel: UILabel!
-    @IBOutlet weak var counterLabel: UILabel!
-    @IBOutlet private weak var ButtonNo: UIButton!
-    @IBOutlet private weak var ButtonYes: UIButton!
 }
