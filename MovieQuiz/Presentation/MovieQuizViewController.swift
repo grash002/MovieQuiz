@@ -107,6 +107,7 @@ final class MovieQuizViewController: UIViewController {
         currentQuestionIndex = 0
         correctAnswers = 0
         imageView.layer.borderColor = UIColor.yBlack.cgColor
+        questionFactory?.questionsDidShows = []
         questionFactory?.requestNextQuestion()
     }
     

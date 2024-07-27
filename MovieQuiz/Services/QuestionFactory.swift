@@ -16,7 +16,6 @@ class QuestionFactory: QuestionFactoryProtocol {
         QuizQuestion(image: "Vivarium", text: "Рейтинг этого фильма больше чем 6?", correctAnswer: false)
     ]
     
-    private var questionsDidShows:[Int] = []
     private var questionsDontShows:[Int] {
         var questionsDontShows:[Int] = []
         for i in 0..<questions.count{
@@ -29,6 +28,8 @@ class QuestionFactory: QuestionFactoryProtocol {
     
     
     //MARK: - Public properties
+    
+    var questionsDidShows:[Int] = []
     
     var questionCount: Int {
         return questions.count
