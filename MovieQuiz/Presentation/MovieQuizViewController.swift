@@ -9,6 +9,7 @@ final class MovieQuizViewController: UIViewController {
     @IBOutlet private weak var counterLabel: UILabel!
     @IBOutlet private weak var buttonNo: UIButton!
     @IBOutlet private weak var buttonYes: UIButton!
+    @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
     
     // MARK: - Private Properties
     
@@ -50,9 +51,9 @@ final class MovieQuizViewController: UIViewController {
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
         let quizStepViewModel = QuizStepViewModel(
-            image: UIImage(named: model.image) ?? UIImage(),
+            image: UIImage(data: model.image) ?? UIImage(),
             question: model.text,
-            questionNumber: "\(currentQuestionIndex + 1)/\(questionFactory?.questionCount ?? 0)")
+            questionNumber: "\(currentQuestionIndex + 1)/\(questionCount)")
         return quizStepViewModel
     }
     
@@ -78,7 +79,7 @@ final class MovieQuizViewController: UIViewController {
             let gameResult = GameResult(correct: correctAnswers, total: questionCount, date: Date())
             
             statisticService?.store(gameResult: gameResult)
-            alertPresenter?.showAlert()
+            alertPresenter?.showEndGameAlert()
             
         } else {
             currentQuestionIndex += 1
@@ -90,7 +91,39 @@ final class MovieQuizViewController: UIViewController {
         buttonYes.isEnabled = true
     }
     
+    private func showLoadingIndicator() {
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
+        
+    }
+    
+    private func hideLoadingIndicator() {
+        activityIndicator.isHidden = true
+        activityIndicator.stopAnimating()
+    }
+    
+    private func showNetworkError(message: String) {
+        hideLoadingIndicator() // скрываем индикатор загрузки
+        
+        let alertModel = AlertModel(title: "Ошибка",
+                                    message: message,
+                                    buttonText: "Попробовать еще раз",
+                                    completion: nil)
+        
+        alertPresenter?.showAlert(alertModel: alertModel)
+    }
+    
     // MARK: - Internal methods
+    
+    func didLoadDataFromServer() {
+        activityIndicator.isHidden = true
+        questionFactory?.requestNextQuestion()
+    }
+
+    func didFailToLoadData(with error: Error) {
+        showNetworkError(message: error.localizedDescription)
+    }
+    
     func didReceiveNextQuestion(question: QuizQuestion?){
         guard let question = question else {
             return
@@ -104,11 +137,18 @@ final class MovieQuizViewController: UIViewController {
     }
     
     func resetGame() {
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.show(quiz: QuizStepViewModel(image: UIImage(), question: "", questionNumber: "0/10"))
+            
+            self?.showLoadingIndicator()
+        }
+        
+        questionFactory?.loadData()
         currentQuestionIndex = 0
         correctAnswers = 0
         imageView.layer.borderColor = UIColor.yBlack.cgColor
-        questionFactory?.questionsDidShows = []
-        questionFactory?.requestNextQuestion()
+        
     }
     
     // MARK: - Lifecycle
@@ -116,7 +156,8 @@ final class MovieQuizViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        questionFactory = QuestionFactory(delegate: self)
+        
+        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         statisticService = StatisticService()
         alertPresenter = AlertPresenter(delegate: self, statisticServiceDelegate: statisticService)
         
@@ -128,8 +169,13 @@ final class MovieQuizViewController: UIViewController {
         imageView.layer.cornerRadius = 20
         imageView.layer.borderColor = UIColor.yBlack.cgColor
         
-        questionFactory?.requestNextQuestion()
-        questionCount = questionFactory?.questionCount ?? 0
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.show(quiz: QuizStepViewModel(image: UIImage(), question: "", questionNumber: "0/10"))
+            
+            self?.showLoadingIndicator()
+        }
+        questionFactory?.loadData()
     }
 }
 

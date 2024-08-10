@@ -3,8 +3,6 @@ import Foundation
 protocol QuestionFactoryProtocol {
     
     func requestNextQuestion()
+    func loadData()
     
-    var questionCount:Int { get }
-    
-    var questionsDidShows:[Int] { get set }
 }
