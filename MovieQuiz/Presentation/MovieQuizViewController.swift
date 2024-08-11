@@ -172,11 +172,9 @@ final class MovieQuizViewController: UIViewController {
         imageView.layer.borderColor = UIColor.yBlack.cgColor
         
         
-        DispatchQueue.main.async { [weak self] in
-            self?.show(quiz: QuizStepViewModel(image: UIImage(), question: "", questionNumber: "0/10"))
-            
-            self?.showLoadingIndicator()
-        }
+        show(quiz: QuizStepViewModel(image: UIImage(), question: "", questionNumber: "0/10"))
+        showLoadingIndicator()
+        
         questionFactory?.loadData()
     }
 }
