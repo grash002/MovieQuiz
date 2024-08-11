@@ -84,6 +84,7 @@ final class MovieQuizViewController: UIViewController {
         } else {
             currentQuestionIndex += 1
             imageView.layer.borderColor = UIColor.yBlack.cgColor
+            showLoadingIndicator()
             questionFactory?.requestNextQuestion()
         }
         
@@ -128,6 +129,7 @@ final class MovieQuizViewController: UIViewController {
         guard let question = question else {
             return
         }
+        hideLoadingIndicator()
         self.currentQuestion = question
         let viewModel = convert(model: question)
         

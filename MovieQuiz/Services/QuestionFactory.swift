@@ -42,7 +42,6 @@ class QuestionFactory: QuestionFactoryProtocol {
                         self.movies.append(movie)
                     }
                     
-                    
                     self.delegate?.questionCount = self.movies.count
                     self.delegate?.didLoadDataFromServer()
                 case .failure(let error):
