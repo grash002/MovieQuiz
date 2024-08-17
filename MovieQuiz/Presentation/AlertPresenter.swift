@@ -4,7 +4,7 @@ class AlertPresenter {
     weak var delegate: AlertPresenterDelegate?
     var statisticServiceDelegate: StatisticServiceProtocol?
     
-    func showAlert() {
+    func showEndGameAlert() {
         
         guard let delegate = delegate, let statisticServiceDelegate = statisticServiceDelegate else {
             return
@@ -24,6 +24,28 @@ class AlertPresenter {
                                     """,
                                     buttonText: "Сыграть еще раз",
                                     completion: nil)
+        
+        let alert = UIAlertController(
+            title: alertModel.title,
+            message: alertModel.message,
+            preferredStyle: .alert)
+        
+        let action = UIAlertAction(title: alertModel.buttonText, style: .default) { [weak delegate] _ in
+            guard let delegate = delegate else {
+                return
+            }
+            delegate.resetGame()
+        }
+        
+        alert.addAction(action)
+        
+        delegate.present(alert, animated: true, completion: alertModel.completion)
+    }
+    
+    func showAlert(alertModel: AlertModel) {
+        guard let delegate = delegate else {
+            return
+        }
         
         let alert = UIAlertController(
             title: alertModel.title,
