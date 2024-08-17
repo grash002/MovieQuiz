@@ -54,7 +54,7 @@ class QuestionFactory: QuestionFactoryProtocol {
     func requestNextQuestion() {
         DispatchQueue.global().async { [weak self] in
             guard let self = self else { return }
-            let index = self.delegate?.currentQuestionIndex ?? 0
+            let index = self.delegate?.getCurrentQuestionIndex() ?? 0
             
             guard let movie = self.movies[safe: index] else { return }
             var image = Data()

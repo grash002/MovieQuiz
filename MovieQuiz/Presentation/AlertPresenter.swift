@@ -1,8 +1,14 @@
 import UIKit
 
-class AlertPresenter {
+class AlertPresenter: AlertPresenterProtocol {
+    
+    // MARK: - Internal Properties
+    
     weak var delegate: AlertPresenterDelegate?
     var statisticServiceDelegate: StatisticServiceProtocol?
+    
+    
+    // MARK: - Internal Methods
     
     func showEndGameAlert() {
         
@@ -38,9 +44,9 @@ class AlertPresenter {
         }
         
         alert.addAction(action)
-        
-        delegate.present(alert, animated: true, completion: alertModel.completion)
+        delegate.viewControllerDelegate?.alertPresent(alert: alert, alertModel: alertModel)
     }
+    
     
     func showAlert(alertModel: AlertModel) {
         guard let delegate = delegate else {
@@ -60,9 +66,10 @@ class AlertPresenter {
         }
         
         alert.addAction(action)
-        
-        delegate.present(alert, animated: true, completion: alertModel.completion)
+        delegate.viewControllerDelegate?.alertPresent(alert: alert, alertModel: alertModel)
     }
+    
+    // MARK: - Lyfecycle
     
     init(delegate: AlertPresenterDelegate?, statisticServiceDelegate: StatisticServiceProtocol?) {
         self.delegate = delegate
