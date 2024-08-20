@@ -37,7 +37,6 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerDe
     func showLoadingIndicator() {
         activityIndicator.isHidden = false
         activityIndicator.startAnimating()
-        
     }
     
     
@@ -48,30 +47,9 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerDe
     }
     
     
-    func showAnswerResult(isCorrect: Bool) {
-        
+    func showBorderColor(isGreen: Bool) {
         disabledButtons()
-        imageView.layer.borderColor = isCorrect ? UIColor.yGreen.cgColor : UIColor.yRed.cgColor
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak presenter] in
-            guard let presenter = presenter else { return }
-            
-            presenter.correctAnswers += isCorrect ? 1 : 0
-            presenter.showNextQuestionOrResults()
-        }
-    }
-    
-    
-    func prepareForRequestNextQuestion() {
-        presenter?.switchToNextQuestionIndex()
-        imageView.layer.borderColor = UIColor.yBlack.cgColor
-        showLoadingIndicator()
-        presenter?.requestNextQuestion()
-    }
-    
-    
-    func didReceiveNextQuestion(question: QuizQuestion?){
-        presenter?.didReceiveNextQuestion(question: question)
+        imageView.layer.borderColor = isGreen ? UIColor.yGreen.cgColor : UIColor.yRed.cgColor
     }
     
     
@@ -90,6 +68,13 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerDe
     func resetUI() {
         DispatchQueue.main.async { [weak self] in
             self?.show(quiz: QuizStepViewModel(image: UIImage(), question: "", questionNumber: "0/10"))
+            self?.showLoadingIndicator()
+        }
+        imageView.layer.borderColor = UIColor.yBlack.cgColor
+    }
+    
+    func partialResetUI() {
+        DispatchQueue.main.async { [weak self] in
             self?.showLoadingIndicator()
         }
         imageView.layer.borderColor = UIColor.yBlack.cgColor

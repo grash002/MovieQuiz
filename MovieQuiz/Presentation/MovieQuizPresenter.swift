@@ -52,14 +52,11 @@ final class MovieQuizPresenter: QuestionFactoryDelegate, AlertPresenterDelegate 
             alertPresenter?.showEndGameAlert()
             
         } else {
-            viewControllerDelegate?.prepareForRequestNextQuestion()
+            viewControllerDelegate?.partialResetUI()
+            switchToNextQuestionIndex()
+            questionFactory?.requestNextQuestion()
         }
         
-    }
-    
-    
-    func requestNextQuestion() {
-        questionFactory?.requestNextQuestion()
     }
     
     
@@ -84,12 +81,12 @@ final class MovieQuizPresenter: QuestionFactoryDelegate, AlertPresenterDelegate 
     
     
     func getCurrentQuestionIndex() -> Int {
-        return currentQuestionIndex
+        currentQuestionIndex
     }
     
     
     func didLoadDataFromServer() {
-        requestNextQuestion()
+        questionFactory?.requestNextQuestion()
         viewControllerDelegate?.hideLoadingIndicator()
     }
     
@@ -99,7 +96,15 @@ final class MovieQuizPresenter: QuestionFactoryDelegate, AlertPresenterDelegate 
     
     
     func yesOrNoButtonClicked(givenAnsver: Bool) {
-        viewControllerDelegate?.showAnswerResult(isCorrect: givenAnsver == currentQuestion?.correctAnswer)
+        let isCorrect = givenAnsver == currentQuestion?.correctAnswer
+        viewControllerDelegate?.disabledButtons()
+        viewControllerDelegate?.showBorderColor(isGreen: isCorrect)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            guard let self = self else { return }
+            
+            self.correctAnswers += isCorrect ? 1 : 0
+            self.showNextQuestionOrResults()
+        }
     }
     
     
