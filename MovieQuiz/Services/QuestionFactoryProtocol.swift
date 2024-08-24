@@ -1,8 +1,7 @@
 import Foundation
 
-protocol QuestionFactoryProtocol {
+protocol QuestionFactoryProtocol:AnyObject {
     
     func requestNextQuestion()
     func loadData()
-    
 }
